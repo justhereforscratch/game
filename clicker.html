@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Roblox Noob 2006 Clicker</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #ade1f9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    user-select: none;
+  }
+  h1 {
+    color: #1e90ff;
+    margin-bottom: 5px;
+  }
+  #score {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  #noob-img {
+    width: 220px;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+  #noob-img:active {
+    transform: scale(0.95);
+  }
+  #instructions {
+    margin-top: 15px;
+    color: #555;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<h1>Roblox Noob 2006 Clicker</h1>
+<div id="score">Clicks: 0</div>
+<img id="noob-img" src="https://static.wikia.nocookie.net/roblox/images/3/3b/NOOB%21.png/revision/latest?cb=20210630174226" alt="Roblox Noob 2006" />
+<div id="instructions">Click the Noob to earn points!</div>
+
+<script>
+  const scoreDisplay = document.getElementById('score');
+  const noobImg = document.getElementById('noob-img');
+  let clicks = 0;
+
+  noobImg.addEventListener('click', () => {
+    clicks++;
+    scoreDisplay.textContent = `Clicks: ${clicks}`;
+
+    // Small bounce effect on click
+    noobImg.style.transform = 'scale(1.1)';
+    setTimeout(() => {
+      noobImg.style.transform = 'scale(1)';
+    }, 100);
+  });
+</script>
+
+</body>
+</html>
+
