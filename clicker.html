@@ -16,6 +16,7 @@
       height: 100vh;
       margin: 0;
       user-select: none;
+      text-align: center;
     }
     h1 {
       color: #1e90ff;
@@ -38,6 +39,28 @@
       margin-top: 15px;
       color: #555;
       font-style: italic;
+      margin-bottom: 20px;
+    }
+    #install-btn {
+      background: #1e90ff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 18px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgb(30 144 255 / 0.5);
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    #install-btn:hover {
+      background: #1473d2;
+    }
+    #install-btn:active {
+      background: #0f4a7a;
+    }
+    #install-btn.hidden {
+      display: none;
     }
   </style>
 </head>
@@ -51,6 +74,8 @@
     alt="Roblox Noob 2006"
   />
   <div id="instructions">Click the Noob to earn points!</div>
+
+  <button id="install-btn" class="hidden">Install to PC</button>
 
 <script>
   // Clicker game logic
@@ -67,7 +92,7 @@
     }, 100);
   });
 
-  // Register manifest dynamically
+  // PWA manifest info
   const manifest = {
     name: "Noob Clicker Game",
     short_name: "Clicker",
@@ -93,7 +118,7 @@
   link.href = manifestURL;
   document.head.appendChild(link);
 
-  // Register a simple service worker inline (using Blob URL)
+  // Register service worker inline
   if ('serviceWorker' in navigator) {
     const swCode = `
       self.addEventListener('install', event => {
@@ -124,6 +149,37 @@
       console.log('Service worker registration failed:', error);
     });
   }
+
+  // Handle the install prompt and button
+  let deferredPrompt;
+  const installBtn = document.getElementById('install-btn');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent Chrome from showing the default prompt
+    e.preventDefault();
+    deferredPrompt = e;
+    // Show the custom install button
+    installBtn.classList.remove('hidden');
+  });
+
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const choiceResult = await deferredPrompt.userChoice;
+    if (choiceResult.outcome === 'accepted') {
+      console.log('User accepted the install prompt');
+    } else {
+      console.log('User dismissed the install prompt');
+    }
+    deferredPrompt = null;
+    installBtn.classList.add('hidden');
+  });
+
+  // Optional: Hide the button if already installed
+  window.addEventListener('appinstalled', () => {
+    installBtn.classList.add('hidden');
+    console.log('App installed!');
+  });
 </script>
 
 </body>
