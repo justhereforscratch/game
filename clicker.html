@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Noob Clicker Game</title>
 
-  <!-- Link to the manifest for PWA -->
-  <link rel="manifest" href="manifest.json" />
-
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -55,28 +52,79 @@
   />
   <div id="instructions">Click the Noob to earn points!</div>
 
-  <script>
-    const scoreDisplay = document.getElementById('score');
-    const noobImg = document.getElementById('noob-img');
-    let clicks = 0;
+<script>
+  // Clicker game logic
+  const scoreDisplay = document.getElementById('score');
+  const noobImg = document.getElementById('noob-img');
+  let clicks = 0;
 
-    noobImg.addEventListener('click', () => {
-      clicks++;
-      scoreDisplay.textContent = `Clicks: ${clicks}`;
+  noobImg.addEventListener('click', () => {
+    clicks++;
+    scoreDisplay.textContent = `Clicks: ${clicks}`;
+    noobImg.style.transform = 'scale(1.1)';
+    setTimeout(() => {
+      noobImg.style.transform = 'scale(1)';
+    }, 100);
+  });
 
-      // Small bounce effect on click
-      noobImg.style.transform = 'scale(1.1)';
-      setTimeout(() => {
-        noobImg.style.transform = 'scale(1)';
-      }, 100);
-    });
+  // Register manifest dynamically
+  const manifest = {
+    name: "Noob Clicker Game",
+    short_name: "Clicker",
+    start_url: ".",
+    display: "standalone",
+    background_color: "#ade1f9",
+    theme_color: "#1e90ff",
+    description: "A simple Roblox Noob clicker game",
+    icons: [
+      {
+        src: "https://static.wikia.nocookie.net/roblox/images/3/3b/NOOB%21.png/revision/latest?cb=20210630174226",
+        sizes: "192x192",
+        type: "image/png"
+      }
+    ]
+  };
 
-    // Register the service worker for offline and PWA
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js').catch((error) => {
-        console.log('Service worker registration failed:', error);
+  // Create manifest link tag dynamically
+  const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+  const manifestURL = URL.createObjectURL(manifestBlob);
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = manifestURL;
+  document.head.appendChild(link);
+
+  // Register a simple service worker inline (using Blob URL)
+  if ('serviceWorker' in navigator) {
+    const swCode = `
+      self.addEventListener('install', event => {
+        event.waitUntil(
+          caches.open('noob-clicker-cache').then(cache => {
+            return cache.addAll([
+              './',
+              './index.html',
+              'https://static.wikia.nocookie.net/roblox/images/3/3b/NOOB%21.png/revision/latest?cb=20210630174226'
+            ]);
+          })
+        );
       });
-    }
-  </script>
+
+      self.addEventListener('fetch', event => {
+        event.respondWith(
+          caches.match(event.request).then(response => {
+            return response || fetch(event.request);
+          })
+        );
+      });
+    `;
+
+    const swBlob = new Blob([swCode], {type: 'application/javascript'});
+    const swUrl = URL.createObjectURL(swBlob);
+
+    navigator.serviceWorker.register(swUrl).catch(error => {
+      console.log('Service worker registration failed:', error);
+    });
+  }
+</script>
+
 </body>
 </html>
