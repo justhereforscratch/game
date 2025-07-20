@@ -1,185 +1,455 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Noob Clicker Game</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Noob Clicker Game</title>
+<meta name="theme-color" content="#1e90ff" />
 
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #ade1f9;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      user-select: none;
-      text-align: center;
-    }
-    h1 {
-      color: #1e90ff;
-      margin-bottom: 5px;
-    }
-    #score {
-      font-size: 24px;
-      margin-bottom: 20px;
-      color: #333;
-    }
-    #noob-img {
-      width: 220px;
-      cursor: pointer;
-      transition: transform 0.1s ease;
-    }
-    #noob-img:active {
-      transform: scale(0.95);
-    }
-    #instructions {
-      margin-top: 15px;
-      color: #555;
-      font-style: italic;
-      margin-bottom: 20px;
-    }
-    #install-btn {
-      background: #1e90ff;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 18px;
-      cursor: pointer;
-      box-shadow: 0 4px 8px rgb(30 144 255 / 0.5);
-      transition: background-color 0.3s ease;
-      user-select: none;
-    }
-    #install-btn:hover {
-      background: #1473d2;
-    }
-    #install-btn:active {
-      background: #0f4a7a;
-    }
-    #install-btn.hidden {
-      display: none;
-    }
-  </style>
+<style>
+  :root {
+    --blue: #1e90ff;
+    --blue-dark: #1473d2;
+    --blue-darker: #0f4a7a;
+    --bg: #ade1f9;
+    --card-bg: #ffffff;
+    --card-border: #d0e9ff;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    user-select: none;
+    text-align: center;
+    padding-bottom: 120px; /* room for store on small screens */
+  }
+  h1 {
+    color: var(--blue);
+    margin: 16px 0 5px;
+  }
+  #score {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  #multiplier {
+    font-size: 16px;
+    color: #444;
+    margin-bottom: 16px;
+  }
+  #noob-img {
+    width: 220px;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+  #noob-img:active {
+    transform: scale(0.95);
+  }
+  #instructions {
+    margin-top: 15px;
+    color: #555;
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+
+  #install-btn,
+  .store-btn,
+  #rebirth-btn {
+    background: var(--blue);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgb(30 144 255 / 0.5);
+    transition: background-color 0.3s ease, transform 0.1s ease;
+  }
+  #install-btn:hover,
+  .store-btn:hover,
+  #rebirth-btn:hover {
+    background: var(--blue-dark);
+  }
+  #install-btn:active,
+  .store-btn:active,
+  #rebirth-btn:active {
+    background: var(--blue-darker);
+    transform: scale(0.96);
+  }
+  #install-btn.hidden {
+    display: none;
+  }
+
+  #store {
+    max-width: 480px;
+    width: 100%;
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 12px;
+    margin-top: 32px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+    text-align: left;
+  }
+  #store h2 {
+    margin: 0 0 12px;
+    color: #333;
+    text-align: center;
+  }
+  .store-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .store-item:last-child {
+    margin-bottom: 0;
+  }
+  .store-info {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+  .store-info strong {
+    display: block;
+    color: #000;
+    margin-bottom: 4px;
+  }
+  .store-cost {
+    color: #555;
+    font-size: 14px;
+  }
+  .store-btn[disabled],
+  #rebirth-btn[disabled] {
+    background: #b0c9e9;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  #rebirth-box {
+    margin-top: 20px;
+    text-align: center;
+  }
+  #rebirth-box small {
+    display: block;
+    margin-top: 4px;
+    color: #555;
+  }
+
+  #msg {
+    margin-top: 16px;
+    min-height: 20px;
+    font-size: 16px;
+    color: #333;
+    text-align: center;
+  }
+
+  @media (max-width: 480px) {
+    #score { font-size: 20px; }
+    #multiplier { font-size: 14px; }
+    #install-btn,
+    .store-btn,
+    #rebirth-btn { font-size: 16px; padding: 10px 16px; }
+    #noob-img { width: 180px; }
+  }
+</style>
 </head>
 <body>
 
-  <h1>Roblox Noob 2006 Clicker</h1>
-  <div id="score">Clicks: 0</div>
-  <img
-    id="noob-img"
-    src="https://static.wikia.nocookie.net/roblox/images/3/3b/NOOB%21.png/revision/latest?cb=20210630174226"
-    alt="Roblox Noob 2006"
-  />
-  <div id="instructions">Click the Noob to earn points!</div>
+<h1>Roblox Noob 2006 Clicker</h1>
+<div id="score">Clicks: 0</div>
+<div id="multiplier">Multiplier: x1 • Rebirths: 0</div>
 
-  <button id="install-btn" class="hidden">Install to PC</button>
+<img
+  id="noob-img"
+  src="https://static.wikia.nocookie.net/roblox/images/3/3b/NOOB%21.png/revision/latest?cb=20210630174226"
+  alt="Roblox Noob 2006"
+/>
+
+<div id="instructions">Click the Noob to earn points! Buy upgrades below. Rebirth at 1,000,000 clicks for a permanent multiplier boost.</div>
+
+<button id="install-btn" class="hidden">Install to PC</button>
+
+<div id="store">
+  <h2>Store</h2>
+
+  <div class="store-item">
+    <div class="store-info">
+      <strong>Click Power +1</strong>
+      <span class="store-cost" id="click-power-cost-label">Cost: 10 clicks</span>
+    </div>
+    <button class="store-btn" id="buy-click-power">Buy</button>
+  </div>
+
+  <div class="store-item">
+    <div class="store-info">
+      <strong>Auto Clicker +1 / sec</strong>
+      <span class="store-cost" id="auto-clicker-cost-label">Cost: 100 clicks</span>
+    </div>
+    <button class="store-btn" id="buy-auto-clicker">Buy</button>
+  </div>
+
+  <div id="rebirth-box">
+    <button id="rebirth-btn" disabled>Rebirth (1,000,000 clicks)</button>
+    <small>Resets clicks & upgrades. Each Rebirth increases your multiplier by +1.</small>
+  </div>
+</div>
+
+<div id="msg"></div>
 
 <script>
-  // Clicker game logic
-  const scoreDisplay = document.getElementById('score');
-  const noobImg = document.getElementById('noob-img');
-  let clicks = 0;
+/* =============================
+   GAME STATE
+============================= */
+const scoreDisplay = document.getElementById('score');
+const multiplierDisplay = document.getElementById('multiplier');
+const noobImg = document.getElementById('noob-img');
+const msgEl = document.getElementById('msg');
 
-  noobImg.addEventListener('click', () => {
-    clicks++;
-    scoreDisplay.textContent = `Clicks: ${clicks}`;
-    noobImg.style.transform = 'scale(1.1)';
-    setTimeout(() => {
-      noobImg.style.transform = 'scale(1)';
-    }, 100);
-  });
+const clickPowerCostLabel = document.getElementById('click-power-cost-label');
+const autoClickerCostLabel = document.getElementById('auto-clicker-cost-label');
+const buyClickPowerBtn = document.getElementById('buy-click-power');
+const buyAutoClickerBtn = document.getElementById('buy-auto-clicker');
+const rebirthBtn = document.getElementById('rebirth-btn');
 
-  // PWA manifest info
-  const manifest = {
-    name: "Noob Clicker Game",
-    short_name: "Clicker",
-    start_url: ".",
-    display: "standalone",
-    background_color: "#ade1f9",
-    theme_color: "#1e90ff",
-    description: "A simple Roblox Noob clicker game",
-    icons: [
-      {
-        src: "https://static.wikia.nocookie.net/roblox/images/3/3b/NOOB%21.png/revision/latest?cb=20210630174226",
-        sizes: "192x192",
-        type: "image/png"
-      }
-    ]
+let clicks = 0;
+let clickPower = 0;        // +1 per upgrade
+let autoClickers = 0;      // each adds 1 click/sec
+let clickPowerCost = 10;
+let autoClickerCost = 100;
+let rebirths = 0;          // permanent multiplier boosts
+const REBIRTH_REQ = 1_000_000;
+
+/* =============================
+   LOAD / SAVE
+============================= */
+function loadGame() {
+  try {
+    const data = JSON.parse(localStorage.getItem('noobClickerSave'));
+    if (!data) return;
+    clicks = data.clicks ?? clicks;
+    clickPower = data.clickPower ?? clickPower;
+    autoClickers = data.autoClickers ?? autoClickers;
+    clickPowerCost = data.clickPowerCost ?? clickPowerCost;
+    autoClickerCost = data.autoClickerCost ?? autoClickerCost;
+    rebirths = data.rebirths ?? rebirths;
+  } catch(_) {}
+}
+function saveGame() {
+  const data = {
+    clicks,
+    clickPower,
+    autoClickers,
+    clickPowerCost,
+    autoClickerCost,
+    rebirths
   };
+  localStorage.setItem('noobClickerSave', JSON.stringify(data));
+}
 
-  // Create manifest link tag dynamically
-  const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-  const manifestURL = URL.createObjectURL(manifestBlob);
-  const link = document.createElement('link');
-  link.rel = 'manifest';
-  link.href = manifestURL;
-  document.head.appendChild(link);
+/* =============================
+   HELPERS
+============================= */
+function getMultiplier() {
+  return 1 + rebirths;
+}
+function clicksPerClick() {
+  return (1 + clickPower) * getMultiplier();
+}
+function clicksPerSecond() {
+  return autoClickers * getMultiplier();
+}
+function fmt(num) {
+  if (num >= 1_000_000_000) return (num/1_000_000_000).toFixed(2) + "B";
+  if (num >= 1_000_000) return (num/1_000_000).toFixed(2) + "M";
+  if (num >= 1_000) return (num/1_000).toFixed(2) + "K";
+  return Math.floor(num).toString();
+}
+function updateUI() {
+  scoreDisplay.textContent = `Clicks: ${fmt(clicks)}`;
+  multiplierDisplay.textContent = `Multiplier: x${getMultiplier()} • Rebirths: ${rebirths}`;
+  clickPowerCostLabel.textContent = `Cost: ${fmt(clickPowerCost)} clicks`;
+  autoClickerCostLabel.textContent = `Cost: ${fmt(autoClickerCost)} clicks`;
 
-  // Register service worker inline
-  if ('serviceWorker' in navigator) {
-    const swCode = `
-      self.addEventListener('install', event => {
-        event.waitUntil(
-          caches.open('noob-clicker-cache').then(cache => {
-            return cache.addAll([
-              './',
-              './index.html',
-              'https://static.wikia.nocookie.net/roblox/images/3/3b/NOOB%21.png/revision/latest?cb=20210630174226'
-            ]);
-          })
-        );
-      });
+  buyClickPowerBtn.disabled = clicks < clickPowerCost;
+  buyAutoClickerBtn.disabled = clicks < autoClickerCost;
+  rebirthBtn.disabled = clicks < REBIRTH_REQ;
+}
 
-      self.addEventListener('fetch', event => {
-        event.respondWith(
-          caches.match(event.request).then(response => {
-            return response || fetch(event.request);
-          })
-        );
-      });
-    `;
+/* =============================
+   CLICK ACTION
+============================= */
+noobImg.addEventListener('click', () => {
+  clicks += clicksPerClick();
+  pulseImage(noobImg);
+  updateUI();
+  saveGame();
+});
+function pulseImage(el) {
+  el.style.transform = 'scale(1.1)';
+  setTimeout(() => { el.style.transform = 'scale(1)'; }, 100);
+}
 
-    const swBlob = new Blob([swCode], {type: 'application/javascript'});
-    const swUrl = URL.createObjectURL(swBlob);
+/* =============================
+   STORE PURCHASES
+============================= */
+buyClickPowerBtn.addEventListener('click', () => {
+  if (clicks < clickPowerCost) return;
+  clicks -= clickPowerCost;
+  clickPower++;
+  clickPowerCost = Math.ceil(clickPowerCost * 2);
+  setMsg(`Click Power upgraded! +1 (now ${clickPower + 1} / click before multiplier).`);
+  updateUI();
+  saveGame();
+});
 
-    navigator.serviceWorker.register(swUrl).catch(error => {
-      console.log('Service worker registration failed:', error);
-    });
+buyAutoClickerBtn.addEventListener('click', () => {
+  if (clicks < autoClickerCost) return;
+  clicks -= autoClickerCost;
+  autoClickers++;
+  autoClickerCost = Math.ceil(autoClickerCost * 1.8);
+  setMsg(`Auto Clicker bought! You now have ${autoClickers}.`);
+  updateUI();
+  saveGame();
+});
+
+/* =============================
+   REBIRTH
+============================= */
+rebirthBtn.addEventListener('click', () => {
+  if (clicks < REBIRTH_REQ) return;
+  const ok = confirm(
+    `Rebirth?\n\nYou need ${REBIRTH_REQ.toLocaleString()} clicks (you have ${clicks.toLocaleString()}).\n` +
+    `This will reset clicks and upgrades but give +1 permanent multiplier.\n` +
+    `Are you sure?`
+  );
+  if (!ok) return;
+  rebirths++;
+  clicks = 0;
+  clickPower = 0;
+  autoClickers = 0;
+  clickPowerCost = 10;
+  autoClickerCost = 100;
+  setMsg(`Rebirth complete! Multiplier is now x${getMultiplier()}.`);
+  updateUI();
+  saveGame();
+});
+
+/* =============================
+   PASSIVE AUTO-CLICK LOOP
+============================= */
+setInterval(() => {
+  const cps = clicksPerSecond();
+  if (cps > 0) {
+    clicks += cps;
+    updateUI();
+    saveGame();
   }
+}, 1000);
 
-  // Handle the install prompt and button
-  let deferredPrompt;
-  const installBtn = document.getElementById('install-btn');
+/* =============================
+   MESSAGE AREA
+============================= */
+let msgTimeout = null;
+function setMsg(txt, ms = 3000) {
+  msgEl.textContent = txt;
+  if (msgTimeout) clearTimeout(msgTimeout);
+  msgTimeout = setTimeout(() => { msgEl.textContent = ''; }, ms);
+}
 
-  window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent Chrome from showing the default prompt
-    e.preventDefault();
-    deferredPrompt = e;
-    // Show the custom install button
-    installBtn.classList.remove('hidden');
-  });
+/* =============================
+   INITIALIZE
+============================= */
+loadGame();
+updateUI();
 
-  installBtn.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const choiceResult = await deferredPrompt.userChoice;
-    if (choiceResult.outcome === 'accepted') {
-      console.log('User accepted the install prompt');
-    } else {
-      console.log('User dismissed the install prompt');
+/* =============================
+   PWA MANIFEST + SW
+   (lightweight, dynamic)
+============================= */
+const manifest = {
+  name: "Noob Clicker Game",
+  short_name: "Clicker",
+  start_url: ".",
+  display: "standalone",
+  background_color: "#ade1f9",
+  theme_color: "#1e90ff",
+  description: "A simple Roblox Noob clicker game",
+  icons: [
+    {
+      src: "https://static.wikia.nocookie.net/roblox/images/3/3b/NOOB%21.png/revision/latest?cb=20210630174226",
+      sizes: "192x192",
+      type: "image/png"
     }
-    deferredPrompt = null;
-    installBtn.classList.add('hidden');
-  });
+  ]
+};
+const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+const manifestURL = URL.createObjectURL(manifestBlob);
+const link = document.createElement('link');
+link.rel = 'manifest';
+link.href = manifestURL;
+document.head.appendChild(link);
 
-  // Optional: Hide the button if already installed
-  window.addEventListener('appinstalled', () => {
-    installBtn.classList.add('hidden');
-    console.log('App installed!');
+/* ---- Service Worker ---- */
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE = 'noob-clicker-cache-v2';
+    self.addEventListener('install', evt => {
+      evt.waitUntil(
+        caches.open(CACHE).then(cache => cache.addAll(['./']))
+      );
+    });
+    self.addEventListener('activate', evt => {
+      evt.waitUntil(
+        caches.keys().then(keys =>
+          Promise.all(keys.map(k => k === CACHE ? null : caches.delete(k)))
+        )
+      );
+    });
+    self.addEventListener('fetch', evt => {
+      evt.respondWith(
+        caches.match(evt.request).then(resp => resp || fetch(evt.request))
+      );
+    });
+  `;
+  const swBlob = new Blob([swCode], {type: 'application/javascript'});
+  const swUrl = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swUrl).catch(err => {
+    console.log('Service worker registration failed:', err);
   });
+}
+
+/* ---- Custom Install Prompt ---- */
+let deferredPrompt;
+const installBtn = document.getElementById('install-btn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.classList.remove('hidden');
+});
+
+installBtn.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const choiceResult = await deferredPrompt.userChoice;
+  if (choiceResult.outcome === 'accepted') {
+    console.log('User accepted the install prompt');
+  } else {
+    console.log('User dismissed the install prompt');
+  }
+  deferredPrompt = null;
+  installBtn.classList.add('hidden');
+});
+
+window.addEventListener('appinstalled', () => {
+  installBtn.classList.add('hidden');
+  console.log('App installed!');
+});
 </script>
 
 </body>
